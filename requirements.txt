@@ -1,0 +1,5 @@
+# Install a ROCm build of PyTorch for your GPU FIRST (tested: torch 2.14 + ROCm 10.1, Windows 11, RX 9070 XT).
+transformers==5.23.0
+huggingface_hub
+safetensors
+numpy>=1.26,<3
