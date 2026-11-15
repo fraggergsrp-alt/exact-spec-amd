@@ -38,11 +38,13 @@ This is a research engine, not a product. Everything was measured on one PC. Ple
 
 **Qwen3-8B**, 11 prompts x 96 tokens, greedy decoding, decode tok/s:
 
-| Setup | Weights | Plain | Speculative |
-|---|---|---|---|
-| llama.cpp BF16, `-ngl 99` (spills past VRAM) | lossless | 26.9 | 18.6 |
-| **this engine, B12** | **lossless** | **42.7** | **68.4** |
-| llama.cpp Q8_0 (fits) | lossy, 8-bit | 63.4 | 98.8 |
+| Setup | Weights | Plain | Speculative | Spec output = plain |
+|---|---|---|---|---|
+| llama.cpp ROCm BF16, `-ngl 99` (spills past VRAM) | lossless | 26.9 | 18.6 | 10/11 |
+| llama.cpp Vulkan BF16 (spills past VRAM) | lossless | 21.5 | 12.5 | 11/11 |
+| **this engine, B12** | **lossless** | **42.7** | **68.4** | **11/11** |
+| llama.cpp ROCm Q8_0 (fits) | lossy, 8-bit | 63.4 | 98.8 | 7/11 |
+| llama.cpp Vulkan Q8_0 (fits) | lossy, 8-bit | 68.0 | 95.0 | 7/11 |
 
 On 50 varied prompts x 512 tokens, exact speculative decoding reached **73.0 tok/s**, with speculative output equal to plain output on **50/50** prompts.
 
@@ -55,7 +57,9 @@ On 50 varied prompts x 512 tokens, exact speculative decoding reached **73.0 tok
 | Qwen3-1.7B, seeded sampling T=0.7 / 1.0 | 38/50, 36/50 | **50/50, 50/50** | 1.7–4.3% |
 | Qwen3-8B (B12), 50 prompts x 512 tokens | — | **50/50** | — |
 
-Baseline: llama.cpp Lemonade ROCm build b1376, `-fa on -c 4096`, draft Qwen3-0.6B Q8_0 with `--spec-draft-n-max 7`, same token ids. **The llama.cpp Vulkan backend was not measured yet**; on this card it can be faster than ROCm for decoding.
+Baselines: llama.cpp ROCm (Lemonade build b1376) and llama.cpp Vulkan (official build b12426), `-c 4096`, draft Qwen3-0.6B Q8_0 with `--spec-draft-n-max 7`, same token ids. All runs used one session of 11 prompts, so the agreement counts are small samples. On this PC, Vulkan crashed until two things were switched off for the benchmark processes: the RenderDoc Vulkan layer (`VK_LOADER_LAYERS_DISABLE=VK_LAYER_RENDERDOC_Capture`) and flash attention (`-fa off`, which costs less than 2% decode speed in llama-bench). Details: [docs/PREREG_CAP1.md](docs/PREREG_CAP1.md), step 5.
+
+**In short:** this is the fastest *lossless* way we measured to run Qwen3-8B on a 16 GB card. The lossy 8-bit format with speculative decoding is about 1.4x faster still, and in our runs llama.cpp's speculative output differed from its own plain output on 4 of 11 prompts.
 
 ## How it works
 

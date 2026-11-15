@@ -139,3 +139,33 @@ it is NOT faster than giving up exactness with 8-bit weights. Cost of exactness 
 Byte arithmetic: B12 reads 12 bits/weight vs Q8_0's 8.5 -> ~1.4x more data per verify; our B12 kernel also runs at
 ~490 of ~610 GB/s. Closing the gap would need both a faster B12 kernel and more tokens per verify.
 H234 waits for session 2.
+
+## Step 5: llama.cpp Vulkan baseline (2026-11-15/16, results/VKdiag_log.txt, VKdiag2_log.txt, CAP1v3_log.txt,
+## B6_llamacpp_vulkan_8b_bf16_b12426.json, B6_llamacpp_vulkan_8b_q8_b12426.json)
+Not pre-registered as a hypothesis; added because the Vulkan baseline was missing. Official build b12426 (2026-11-15).
+
+**Why Vulkan crashed before (B, measured by bisection):**
+1. The RenderDoc implicit Vulkan layer (VK_LAYER_RENDERDOC_Capture, installed on this PC) crashes every llama.cpp Vulkan
+   process at model load (exit 0xC0000005). With only RenderDoc enabled: crash; with only each of the other six
+   installed layers enabled (Medal, OBS, Steam overlay, Steam Fossilize, Epic EOS, AMD switchable graphics): runs.
+   Workaround used, for these processes only: `VK_LOADER_LAYERS_DISABLE=VK_LAYER_RENDERDOC_Capture`.
+2. Flash attention + cooperative-matrix (KHR_coopmat) prompt processing crashes (pp512, 0.6B: fa1 crash; fa0 24,749 t/s;
+   fa1 with GGML_VK_DISABLE_COOPMAT=1 15,272 t/s). Runs below use `-fa off`; llama-bench decode speed with fa0 vs fa1
+   differs by <2% (Q8_0 tg128 70.2 vs 71.3; BF16 23.2 vs 23.3), so this barely affects the decode comparison.
+
+**Results (b6 prompt set, 11 prompts x 96 tokens, same script and token ids as step 4):**
+
+| Qwen3-8B | plain tok/s | speculative (draft7) tok/s | spec output == plain | weights |
+|---|---|---|---|---|
+| ours (B12), step 4 s1 | 42.7 | 68.4 | **11/11** | lossless |
+| llama.cpp Vulkan BF16 (spills past VRAM) | 21.5 | 12.5 | 11/11 | lossless |
+| llama.cpp ROCm BF16 (step 1) | 26.9 | 18.6 | 10/11 | lossless |
+| llama.cpp Vulkan Q8_0 | 68.0 | 95.0 | 7/11 | LOSSY |
+| llama.cpp ROCm Q8_0 (step 4) | 63.4 | 98.8 | 7/11 | LOSSY |
+
+- Vulkan is faster than ROCm for plain Q8_0 decoding (68.0 vs 63.4) and slightly slower with the draft (95.0 vs 98.8).
+- For lossless BF16, Vulkan is slower than ROCm; our B12 engine stays the fastest lossless option measured
+  (plain 42.7 vs 26.9 best llama.cpp = 1.59x; speculative 68.4 vs 26.9 best llama.cpp config = 2.54x).
+- Honest position unchanged: lossy Q8_0 + draft (95-99 tok/s) is ~1.4x faster than our exact path.
+- Observation (B): llama.cpp's speculative decoding changed the output vs its own plain decoding on 4 of 11 prompts
+  for Q8_0 on both backends (first difference at tokens 3-69); ours matched on 11/11. One run, 11 prompts.

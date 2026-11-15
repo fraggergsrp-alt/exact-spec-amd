@@ -67,7 +67,7 @@ def healthy():
 
 
 def start_server(exe, name, tag):
-    args = [str(exe), "-m", str(TARGET), "-ngl", NGL, "-fa", "on", "-c", "4096", "-np", "1",
+    args = [str(exe), "-m", str(TARGET), "-ngl", NGL, "-fa", os.environ.get("B6_FA", "on"), "-c", "4096", "-np", "1",
             "--host", "127.0.0.1", "--port", str(PORT), *CONFIGS[name]]
     slog = open(HERE / "results" / f"B6_server_{tag}_{name}.log", "a", encoding="utf-8", errors="replace")
     proc = subprocess.Popen(args, stdout=slog, stderr=subprocess.STDOUT, cwd=str(exe.parent))
@@ -184,7 +184,7 @@ def main():
     out = {"backend": backend, "tag": TAG, "rows": [], "target": TARGET.name}
     ref_tokens = {}
     for name in names:
-        args = [str(exe), "-m", str(TARGET), "-ngl", NGL, "-fa", "on", "-c", "4096", "-np", "1",
+        args = [str(exe), "-m", str(TARGET), "-ngl", NGL, "-fa", os.environ.get("B6_FA", "on"), "-c", "4096", "-np", "1",
                 "--host", "127.0.0.1", "--port", str(PORT), *CONFIGS[name]]
         slog = open(HERE / "results" / f"B6_server_{backend}{os.environ.get('B6_SUFFIX', '')}_{name}.log", "w", encoding="utf-8", errors="replace")
         proc = subprocess.Popen(args, stdout=slog, stderr=subprocess.STDOUT, cwd=str(exe.parent))
