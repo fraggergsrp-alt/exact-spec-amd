@@ -6,7 +6,33 @@
 - **Speculative decoding output is bit-for-bit identical to plain decoding** with the same engine, for greedy decoding and for seeded sampling (temperature).
 - **68–73 tok/s** for exact Qwen3-8B with speculation. That is 2.5x llama.cpp running the same full-precision weights, and **slower than llama.cpp with lossy 8-bit (Q8_0) weights**.
 
-This is a research engine, not a product. Everything was measured on one PC. Please try to replicate it on your hardware (see [Reproduce](#reproduce)).
+![Qwen3-8B decode speed: exact engine vs llama.cpp](docs/assets/qwen3-8b-speed.png)
+
+## Quickstart
+
+```
+git clone https://github.com/fraggergsrp-alt/exact-spec-amd
+cd exact-spec-amd
+# 1. install a ROCm build of PyTorch for your GPU (see Requirements below), then:
+pip install -r requirements.txt
+# 2. generate (first run downloads Qwen3-8B, ~16 GB, and packs it to 12-bit in ~30 s):
+python generate.py "Explain what a hash table is."
+python generate.py "Write a short poem about the sea." --temp 0.7 --seed 1
+python generate.py --chat
+# 3. check exactness yourself: runs speculative AND plain decoding and compares every token
+python generate.py "Count from 1 to 30 in words." --compare
+```
+
+From Python:
+
+```python
+from exact8b import ExactEngine
+eng = ExactEngine("Qwen/Qwen3-8B", temperature=0.0, seed=42)
+print(eng.generate("Explain what a hash table is.", max_new_tokens=200))
+print(eng.last_stats)   # tokens, tok/s, rounds
+```
+
+This is a research engine, not a product. Everything was measured on one PC. Please try to replicate it on your hardware (see [Requirements](#requirements-and-reproducing-the-numbers)).
 
 ## Results (measured, one PC)
 
@@ -39,7 +65,7 @@ Baseline: llama.cpp Lemonade ROCm build b1376, `-fa on -c 4096`, draft Qwen3-0.6
 4. **B12, a lossless 12-bit format for bf16 weights.** Per weight: 8 bits (sign + 7 mantissa bits) plus a 4-bit exponent code within a per-row window of 15 exponents. Weights outside the window are kept in a per-row exception list with their exact bits (0.02% for Qwen3-8B). The format averages 12.0 bits/weight and decodes back to the original bits, and the kernel is batch-invariant (`research/cap1/kernel_b12.py`).
 5. **Qwen3-8B on 16 GB** (`research/cap1/sd8b.py`). The bf16 model is loaded in system RAM, each matrix is packed to B12 on the GPU (about 29 s), and the embedding table stays in system RAM.
 
-## Reproduce
+## Requirements and reproducing the numbers
 
 Requirements:
 

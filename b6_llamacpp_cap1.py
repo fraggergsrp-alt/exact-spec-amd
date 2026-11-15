@@ -21,7 +21,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import b6_prompts  # noqa: E402
 
-TAG = "b12380"
+TAG = os.environ.get("B6_TAG", "b12380")   # official build tag for rocm/vulkan backends
 NEW, PORT = 96, 8091
 REPS = int(os.environ.get("B6_REPS", "3"))           # CAP1: fewer repetitions for slow (offloaded) targets
 NGL = os.environ.get("B6_NGL", "99")                  # CAP1: layers on the GPU (partial offload); 99 = all
