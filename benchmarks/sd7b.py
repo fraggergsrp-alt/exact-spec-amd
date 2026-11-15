@@ -22,8 +22,8 @@ from pathlib import Path
 
 import torch
 
-HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE))
+HERE = Path(__file__).resolve().parents[1]          # repo root: results/, models/, tools/
+sys.path[:0] = [str(HERE / "exactspec"), str(HERE / "benchmarks")]
 import graph_decode as gd  # noqa: E402
 import sampler  # noqa: E402   SM1: exact sampling (SD_TEMP, SD_SEED); SD_TEMP=0 = greedy as before
 from inference_benchmark import make_prompt_ids  # noqa: E402

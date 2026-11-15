@@ -1,4 +1,4 @@
-# Install a ROCm build of PyTorch for your GPU FIRST (tested: torch 2.14 + ROCm 10.1, Windows 11, RX 9070 XT).
+# PyTorch itself is installed by setup.bat (AMD ROCm build: torch 2.14.0+rocm10.1.0). These are the other packages.
 transformers==5.23.0
 huggingface_hub
 safetensors

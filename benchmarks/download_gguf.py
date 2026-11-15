@@ -9,7 +9,7 @@ Files go into models\\ inside the project. Prints the exact paths it used.
 from pathlib import Path
 from huggingface_hub import hf_hub_download, list_repo_files
 
-HERE = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parents[1]          # repo root
 OUT = HERE / "models"
 OUT.mkdir(exist_ok=True)
 

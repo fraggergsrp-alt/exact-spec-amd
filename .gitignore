@@ -2,6 +2,5 @@ __pycache__/
 .venv*/
 models/
 tools/
-results/*
-!results/reference_2026-11-15/
+results/
 *.bak

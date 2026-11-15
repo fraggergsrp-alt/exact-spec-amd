@@ -34,7 +34,7 @@ from pathlib import Path
 import torch
 import torch.nn.functional as F
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 
 SRC = r"""
 #pragma clang fp contract(off)

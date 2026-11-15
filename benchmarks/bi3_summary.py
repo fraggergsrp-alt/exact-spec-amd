@@ -4,7 +4,7 @@ import statistics
 import sys
 from pathlib import Path
 
-R = Path(__file__).resolve().parent / "results"
+R = Path(__file__).resolve().parents[1] / "results"
 m = sys.argv[1]
 
 

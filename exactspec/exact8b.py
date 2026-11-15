@@ -25,7 +25,6 @@ import torch.nn.functional as F
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-sys.path.insert(0, str(HERE / "research" / "cap1"))
 
 EOS_IDS = (151643, 151645)          # <|endoftext|>, <|im_end|>
 

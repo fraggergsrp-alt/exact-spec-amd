@@ -11,7 +11,7 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parents[1]          # repo root
 TOOLS = HERE / "tools"
 API = "https://api.github.com/repos/lemonade-sdk/llamacpp-rocm/releases/latest"
 

@@ -27,8 +27,8 @@ from pathlib import Path
 import torch
 import torch.nn.functional as F
 
-ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "exactspec"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import graph_decode as gd  # noqa: E402
 import kernel_b12 as kb  # noqa: E402

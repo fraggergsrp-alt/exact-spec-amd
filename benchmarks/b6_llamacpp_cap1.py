@@ -17,8 +17,8 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE))
+HERE = Path(__file__).resolve().parents[1]          # repo root: results/, models/, tools/
+sys.path[:0] = [str(HERE / "exactspec"), str(HERE / "benchmarks")]
 import b6_prompts  # noqa: E402
 
 TAG = os.environ.get("B6_TAG", "b12380")   # official build tag for rocm/vulkan backends

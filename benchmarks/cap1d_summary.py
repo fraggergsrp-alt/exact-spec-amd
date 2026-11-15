@@ -3,7 +3,7 @@ import json
 import statistics
 from pathlib import Path
 
-R = Path(__file__).resolve().parents[2] / "results"
+R = Path(__file__).resolve().parents[1] / "results"
 
 
 def load(n):
